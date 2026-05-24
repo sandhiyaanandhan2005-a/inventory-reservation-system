@@ -64,7 +64,7 @@ export default function Home() {
             <p><b>Available Stock:</b> {available}</p>
 
             <button
-              onClick={() => handleReserve(item)}
+              onClick={() => handleReserve(item:any)}
               disabled={available <= 0}
             >
               Reserve
