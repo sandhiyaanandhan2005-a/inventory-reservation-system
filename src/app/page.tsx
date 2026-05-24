@@ -12,7 +12,7 @@ export default function Home() {
       .then(data => setProducts(data))
   }, [])
 
-  const handleReserve = async (item) => {
+  const handleReserve = async (item:any) => {
     const res = await fetch('/api/reservations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -64,7 +64,7 @@ export default function Home() {
             <p><b>Available Stock:</b> {available}</p>
 
             <button
-              onClick={() => handleReserve(item:any)}
+              onClick={() => handleReserve(item)}
               disabled={available <= 0}
             >
               Reserve
