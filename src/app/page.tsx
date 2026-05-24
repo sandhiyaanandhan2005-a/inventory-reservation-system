@@ -1,121 +1,77 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
+  const [reservation, setReservation] = useState<any>(null)
+  const [products, setProducts] = useState([])
 
-  const [productId, setProductId] = useState('')
-  const [warehouseId, setWarehouseId] = useState('')
-  const [quantity, setQuantity] = useState(1)
-  const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [reservation, setReservation] = useState(null)
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => setProducts(data))
+  }, [])
 
-  const handleReserve = async () => {
-    if (loading) return
-
-    setLoading(true)
-    setMessage('⏳ Reserving...')
-    setReservation(null) 
-
-    if (!productId || !warehouseId) {
-      setMessage('❌ Please enter all fields')
-      setLoading(false)
-      return
-    }
-
-    if (quantity <= 0) {
-      setMessage('❌ Invalid quantity')
-      setLoading(false)
-      return
-    }
-
-    try {
-      const res = await fetch('/api/reservations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product_id: productId,
-          warehouse_id: warehouseId,
-          quantity,
-        }),
+  const handleReserve = async (item) => {
+    const res = await fetch('/api/reservations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        product_id: item.product_id,
+        warehouse_id: item.warehouse_id,
+        quantity: 1
       })
+    })
 
-      const data = await res.json()
-      console.log("API RESPONSE:", data)
-
-      if (!res.ok) {
-        setMessage(`❌ ${data.error}`)
-        setLoading(false)
-        return
-      }
-
-      setMessage('✅ Reserved successfully!')
-
-      setReservation(data.reservation)
-
-    } catch (err) {
-      console.error(err)
-      setMessage('❌ Something went wrong')
+    let data
+    try {
+      data = await res.json()
+    } catch {
+      data = {}
     }
 
-    setLoading(false)
+    // 🔥 IMPORTANT FIX (409 / 410 handling)
+    if (!res.ok) {
+      alert(`❌ ${data.error || 'Something went wrong'}`)
+      return
+    }
+
+    // ✅ SUCCESS
+    alert(`✅ Reserved successfully!\nID: ${data.id}`)
+
+    // 👉 redirect to reservation page
+    window.location.href = `/reservation/${data.id}`
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-md w-[400px] text-center">
+    <div style={{ padding: '20px' }}>
+      <h1>Products</h1>
 
-        <h1 className="text-2xl font-bold mb-4">
-          Inventory Reservation
-        </h1>
+      {products.map((item, i) => {
+        const available = item.total_stock - item.reserved_stock
 
-        <input
-          placeholder="Product ID"
-          value={productId}
-          onChange={(e) => setProductId(e.target.value)}
-          className="border p-3 w-full mb-3 rounded"
-        />
+        return (
+          <div
+            key={i}
+            style={{
+              marginBottom: '15px',
+              border: '1px solid gray',
+              padding: '10px'
+            }}
+          >
+            <p><b>Product:</b> {item.product_id}</p>
+            <p><b>Warehouse:</b> {item.warehouse_id}</p>
+            <p><b>Available Stock:</b> {available}</p>
 
-        <input
-          placeholder="Warehouse ID"
-          value={warehouseId}
-          onChange={(e) => setWarehouseId(e.target.value)}
-          className="border p-3 w-full mb-3 rounded"
-        />
-
-        <input
-          type="number"
-          value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
-          className="border p-3 w-full mb-4 rounded"
-        />
-
-        <button
-          onClick={handleReserve}
-          disabled={loading}
-          className={`w-full p-2 rounded text-white ${
-            loading ? 'bg-gray-400' : 'bg-blue-600'
-          }`}
-        >
-          {loading ? 'Reserving...' : 'Reserve'}
-        </button>
-
-        {message && (
-          <p className="mt-4 font-semibold">{message}</p>
-        )}
-
-        {/* ✅ SHOW DATA */}
-        {reservation && (
-          <div className="mt-4 text-left border p-3 rounded">
-            <p><b>Product:</b> {reservation.product_id}</p>
-            <p><b>Warehouse:</b> {reservation.warehouse_id}</p>
-            <p><b>Quantity:</b> {reservation.quantity}</p>
-            <p><b>Status:</b> {reservation.status}</p>
+            <button
+              onClick={() => handleReserve(item)}
+              disabled={available <= 0}
+            >
+              Reserve
+            </button>
           </div>
-        )}
-
-      </div>
+        )
+      })}
     </div>
   )
 }

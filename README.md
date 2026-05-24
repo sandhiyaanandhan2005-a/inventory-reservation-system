@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Inventory Reservation System
 
-## Getting Started
+## 🚀 Overview
+This project implements an inventory reservation system for multi-warehouse products.
 
-First, run the development server:
+Users can:
+- View products and available stock
+- Reserve items
+- Confirm purchase
+- Cancel reservation
+
+---
+
+## 🧠 How it works
+
+### Reservation Flow
+1. User clicks "Reserve"
+2. Reservation is created with status = `pending`
+3. Stock is temporarily reserved
+4. Reservation expires after a fixed time
+
+### Confirm
+- Changes status to `confirmed`
+- Stock is permanently deducted
+
+### Release / Cancel
+- Changes status to `released`
+- Stock is returned
+
+---
+
+## ⚠️ Error Handling
+
+- **409 Conflict** → Not enough stock
+- **410 Gone** → Reservation expired
+
+These are shown in UI alerts.
+
+---
+
+## ⏳ Expiry Handling
+
+Reservations use `expires_at`.
+
+Expired reservations are:
+- Checked during API calls (lazy cleanup)
+- Treated as invalid if expired
+
+In production, this can be improved using:
+- Cron jobs (Vercel Cron)
+- Background workers
+
+---
+
+## 🛠️ Tech Stack
+
+- Next.js (App Router)
+- Supabase (PostgreSQL)
+- JavaScript
+
+---
+
+## ▶️ Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
