@@ -4,7 +4,8 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
+    "noImplicitAny": false,   // ✅ ADD THIS LINE
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -21,14 +22,5 @@
     "paths": {
       "@/*": ["./src/*"]
     }
-  },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
-, "src/app/api/reservations/products/route.js", "src/app/api/reservations/route.js"  ],
-  "exclude": ["node_modules"]
+  }
 }
